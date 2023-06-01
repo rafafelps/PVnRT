@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 #define AMOUNT_BOXES 2
 #define MAX_CIRCLES 100
@@ -48,40 +49,30 @@ int main() {
     unsigned int mode = 0;
     changeMode(0, circles, boxes, circleCount, boxThickness);
 
+    unsigned int frameCount = 1;
+    unsigned int pressureCount[2] = {0};
+    char p[50] = {'\0'};
+    char p2[50] = {'\0'};
+    p[0] = 'P'; p2[0] = 'P';
+    p[1] = ':'; p2[1] = ':';
+    p[2] = ' '; p2[2] = ' ';
     while (!WindowShouldClose()) {
+        frameCount++;
+
         // Detects button clicks
         Vector2 mousePos = GetMousePosition();
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
             for (int i = 0; i < 4; i++) {
                 if (mousePos.x >= buttons[i].x && mousePos.x <= buttons[i].x + buttons[i].width &&
-                    mousePos.y >= buttons[i].y && mousePos.y <= buttons[i].y + buttons[i].height) { mode = i; changeMode(mode, circles, boxes, circleCount, boxThickness); }
-            }
-        }
-
-        // Update
-        /* Codigo para adicionar mais bolas
-        Vector2 mousePos = GetMousePosition();
-        if (mousePos.x > boxes[0].x + boxThickness && mousePos.x < boxes[0].x + boxes[0].width - boxThickness &&
-            mousePos.y > boxes[0].y + boxThickness && mousePos.y < boxes[0].y + boxes[0].height - boxThickness) {
-            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                for (int i = 0; i < 2; i++) {
-                    if (circleCount < MAX_CIRCLES) {
-                        circles[circleCount].pos = GetMousePosition();
-                        float delta = 0;
-                        while (delta < 1 || delta > 3) {
-                            circles[circleCount].speed.x = (float)GetRandomValue(-180, 180) / 60.f;
-                            circles[circleCount].speed.y = (float)GetRandomValue(-180, 180) / 60.f;
-
-                            delta = sqrtf(powf(circles[circleCount].speed.x, 2) + powf(circles[circleCount].speed.y, 2));
-                        }
-                        circles[circleCount].radius = 3;
-                        circles[circleCount].color = (Color){0, 71, 171, 255};
-
-                        circleCount++;
-                    }
+                    mousePos.y >= buttons[i].y && mousePos.y <= buttons[i].y + buttons[i].height) {
+                    mode = i;
+                    changeMode(mode, circles, boxes, circleCount, boxThickness);
+                    frameCount = 1;
+                    pressureCount[0] = 0;
+                    pressureCount[1] = 0;
                 }
             }
-        }*/
+        }
 
         // Update Circles
         for (int currBox = 0; currBox < AMOUNT_BOXES; currBox++) {
@@ -89,10 +80,14 @@ int main() {
                 circles[currBox][i].pos.x += circles[currBox][i].speed.x;
                 circles[currBox][i].pos.y += circles[currBox][i].speed.y;
 
-                if (circles[currBox][i].pos.x - circles[currBox][i].radius < boxes[currBox].x + boxThickness || circles[currBox][i].pos.x + circles[currBox][i].radius > boxes[currBox].x + boxes[currBox].width - boxThickness)
+                if (circles[currBox][i].pos.x - circles[currBox][i].radius < boxes[currBox].x + boxThickness || circles[currBox][i].pos.x + circles[currBox][i].radius > boxes[currBox].x + boxes[currBox].width - boxThickness) {
                     circles[currBox][i].speed.x *= -1;
-                if (circles[currBox][i].pos.y - circles[currBox][i].radius < boxes[currBox].y + boxThickness || circles[currBox][i].pos.y + circles[currBox][i].radius > boxes[currBox].y + boxes[currBox].width - boxThickness)
+                    pressureCount[currBox]++;    
+                }
+                if (circles[currBox][i].pos.y - circles[currBox][i].radius < boxes[currBox].y + boxThickness || circles[currBox][i].pos.y + circles[currBox][i].radius > boxes[currBox].y + boxes[currBox].width - boxThickness) {
                     circles[currBox][i].speed.y *= -1;
+                    pressureCount[currBox]++;
+                }
             }
         }
         
@@ -114,6 +109,29 @@ int main() {
         } else {
             DrawText("=", (0.7 / 2 + 0.3) * screenWidth - 3, screenHeight * 0.5 - 3 , 20, RAYWHITE);
         }
+        
+        char s[50];
+        float pressureGauge[2] = {0};
+        if (frameCount >= 61) {
+            p[3] = '\0'; p2[3] = '\0';
+            pressureGauge[0] = (float)(pressureCount[0]) / frameCount;
+            gcvt(pressureGauge[0] + (4.5 * pressureGauge[0]), 4, s);
+            strcat(p, s);
+            pressureGauge[1] = (float)(pressureCount[1]) / frameCount;
+            if (mode == 3) {
+                pressureGauge[1] = 2 * pressureGauge[0] + (GetRandomValue(0, RAND_MAX) / ((float)(RAND_MAX) * 10));
+            }
+            gcvt(pressureGauge[1] + (4.5 * pressureGauge[1]), 4, s);
+            strcat(p2, s);
+
+            pressureCount[0] = 0;
+            pressureCount[1] = 0;
+            frameCount = 1;
+        }
+        if (p[6] == '\0') { p[6] = '0'; p[7] = '0'; p[8] = '\0'; }
+        if (p2[6] == '\0') { p2[6] = '0'; p2[7] = '0'; p2[8] = '\0'; }
+        DrawText(p, 390, 330, 20, RAYWHITE);
+        DrawText(p2, 585, 330, 20, RAYWHITE);
 
         // Left panel with buttons
         DrawRectangle(0, 0, screenWidth * 0.3, screenHeight, (Color){73, 95, 255, 255});
@@ -225,12 +243,10 @@ void changeMode(int mode, Circle** circles, Rectangle* boxes, unsigned int* circ
             }
         }
     } else if (mode == 3) {
-        boxes[1].width /= 2;
-        boxes[1].height /= 2;
-        boxes[1].width += 2;
-        boxes[1].height += 2;
-        boxes[1].x += boxes[1].height / 2 -1;
-        boxes[1].y += boxes[1].height / 2 -2;
+        boxes[1].width /= sqrtf(2);
+        boxes[1].height /= sqrtf(2);
+        boxes[1].x += boxes[1].width / 4 - 5;
+        boxes[1].y += boxes[1].height / 4 - 5;
         for (int currBox = 0; currBox < AMOUNT_BOXES; currBox++) {
             for (circleCount[currBox] = 0; circleCount[currBox] < MAX_CIRCLES; circleCount[currBox]++) {
                 circles[currBox][circleCount[currBox]].radius = 3;
