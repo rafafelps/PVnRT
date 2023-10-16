@@ -9,7 +9,7 @@
       <img src="./docs/assets/C++.png" width="100" alt="Made with C++" />
     </a>
     <a href="https://www.raylib.com" target="_blank" rel="noopener">
-      <img src="./docs/assets/Raylib_logo.png" width="100" alt="Made with raylib" />
+      <img src="./docs/assets/Raylib_logo.png" width="110" alt="Made with raylib" />
     </a>
   </p>
 </div>
