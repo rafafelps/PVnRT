@@ -9,13 +9,13 @@
       <img src="./docs/assets/C++.png" width="100" alt="Made with C++" />
     </a>
     <a href="https://www.raylib.com" target="_blank" rel="noopener">
-      <img src="./docs/assets/Raylib_logo.png" width="110" alt="Made with raylib" />
+      <img src="./docs/assets/Raylib_logo.png" width="115" alt="Made with raylib" />
     </a>
   </p>
 </div>
 
 ## Description
-Made with C++ using raylib to render. PVnRT is a visualizer of the Ideal Gas Law, it allows to see pressure changes when changing the amount of molecules, the temperature and the volume.
+Made with C using raylib to render. PVnRT is a visualizer of the Ideal Gas Law, it allows to see pressure changes when changing the amount of molecules, the temperature and the volume.
 
 ## Usage
 <p>
